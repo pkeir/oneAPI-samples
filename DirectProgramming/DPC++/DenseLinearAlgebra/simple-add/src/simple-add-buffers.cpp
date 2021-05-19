@@ -31,11 +31,10 @@
 #endif
 
 using namespace sycl;
-using namespace std;
 
 // Array type and data size for this example.
 constexpr size_t array_size = 10000;
-typedef array<int, array_size> IntArray;
+typedef std::array<int, array_size> IntArray;
 
 //************************************
 // Iota in DPC++ on device.
@@ -61,7 +60,9 @@ void IotaParallel(queue &q, IntArray &a_array, int value) {
     //    2nd parameter is the kernel, a lambda that specifies what to do per
     //    work item. The parameter of the lambda is the work item id.
     // DPC++ supports unnamed lambda kernel by default.
-    h.parallel_for(num_items, [=](auto i) { a[i] = value + i; });
+//    h.parallel_for(num_items, [=](auto i) { a[i] = value + i; });
+//    h.parallel_for(num_items, [=](sycl::item<1> i) { a[i] = value + i; });
+    h.parallel_for(num_items, [=](sycl::id<1> i) { a[i] = value + i; });
   });
 }
 
@@ -89,24 +90,24 @@ int main() {
   for (size_t i = 0; i < sequential.size(); i++) sequential[i] = value + i;
 
   try {
-    queue q(d_selector, dpc_common::exception_handler);
+    sycl::queue q(d_selector, dpc_common::exception_handler);
 
     // Print out the device information used for the kernel code.
-    cout << "Running on device: "
-         << q.get_device().get_info<info::device::name>() << "\n";
-    cout << "Array size: " << parallel.size() << "\n";
+    std::cout << "Running on device: "
+              << q.get_device().get_info<info::device::name>() << "\n";
+    std::cout << "Array size: " << parallel.size() << "\n";
 
     // Parallel iota in DPC++.
     IotaParallel(q, parallel, value);
   } catch (std::exception const &e) {
-    cout << "An exception is caught while computing on device.\n";
-    terminate();
+    std::cout << "An exception is caught while computing on device.\n";
+    std::terminate();
   }
 
   // Verify two results are equal.
   for (size_t i = 0; i < sequential.size(); i++) {
     if (parallel[i] != sequential[i]) {
-      cout << "Failed on device.\n";
+      std::cout << "Failed on device.\n";
       return -1;
     }
   }
@@ -117,11 +118,11 @@ int main() {
   // Print out iota result.
   for (int i = 0; i < indices_size; i++) {
     int j = indices[i];
-    if (i == indices_size - 1) cout << "...\n";
-    cout << "[" << j << "]: " << j << " + " << value << " = "
+    if (i == indices_size - 1) std::cout << "...\n";
+    std::cout << "[" << j << "]: " << j << " + " << value << " = "
          << parallel[j] << "\n";
   }
 
-  cout << "Successfully completed on device.\n";
+  std::cout << "Successfully completed on device.\n";
   return 0;
 }
