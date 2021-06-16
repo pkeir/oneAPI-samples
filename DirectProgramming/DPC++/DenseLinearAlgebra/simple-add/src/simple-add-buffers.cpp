@@ -60,9 +60,10 @@ void IotaParallel(queue &q, IntArray &a_array, int value) {
     //    2nd parameter is the kernel, a lambda that specifies what to do per
     //    work item. The parameter of the lambda is the work item id.
     // DPC++ supports unnamed lambda kernel by default.
-//    h.parallel_for(num_items, [=](auto i) { a[i] = value + i; });
+    h.parallel_for(num_items, [=](auto i) { a[i] = value + i; });
+//    h.parallel_for(num_items, [=](auto i) { a[i] = i; });
 //    h.parallel_for(num_items, [=](sycl::item<1> i) { a[i] = value + i; });
-    h.parallel_for(num_items, [=](sycl::id<1> i) { a[i] = value + i; });
+//    h.parallel_for(num_items, [=](sycl::id<1> i) { a[i] = value + i; });
   });
 }
 

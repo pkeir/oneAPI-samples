@@ -31,7 +31,6 @@
 #endif
 
 using namespace sycl;
-using namespace std;
 
 // Array size for this example.
 constexpr size_t array_size = 10000;
@@ -78,9 +77,9 @@ int main() {
     queue q(d_selector, dpc_common::exception_handler);
 
     // Print out the device information used for the kernel code.
-    cout << "Running on device: "
+    std::cout << "Running on device: "
          << q.get_device().get_info<info::device::name>() << "\n";
-    cout << "Array size: " << array_size << "\n";
+    std::cout << "Array size: " << array_size << "\n";
 
     int *sequential = malloc_shared<int>(array_size, q);
     int *parallel = malloc_shared<int>(array_size, q);
@@ -89,7 +88,7 @@ int main() {
       if (sequential != nullptr) free(sequential, q);
       if (parallel != nullptr) free(parallel, q);
 
-      cout << "Shared memory allocation failure.\n";
+      std::cout << "Shared memory allocation failure.\n";
       return -1;
     }
 
@@ -102,7 +101,7 @@ int main() {
     // Verify two results are equal.
     for (size_t i = 0; i < array_size; i++) {
       if (parallel[i] != sequential[i]) {
-        cout << "Failed on device.\n";
+        std::cout << "Failed on device.\n";
         return -1;
       }
     }
@@ -113,18 +112,18 @@ int main() {
     // Print out iota result.
     for (int i = 0; i < indices_size; i++) {
       int j = indices[i];
-      if (i == indices_size - 1) cout << "...\n";
-      cout << "[" << j << "]: " << j << " + " << value << " = "
+      if (i == indices_size - 1) std::cout << "...\n";
+      std::cout << "[" << j << "]: " << j << " + " << value << " = "
            << sequential[j] << "\n";
     }
 
     free(sequential, q);
     free(parallel, q);
   } catch (std::exception const &e) {
-    cout << "An exception is caught while computing on device.\n";
-    terminate();
+    std::cout << "An exception is caught while computing on device.\n";
+    std::terminate();
   }
 
-  cout << "Successfully completed on device.\n";
+  std::cout << "Successfully completed on device.\n";
   return 0;
 }
